@@ -1,31 +1,46 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import styled, {css} from 'styled-components';
+import styled from 'styled-components';
+import {css} from 'styled-components';
 
-const Contents = ({words}) => {
+const Contents = ({words, randomIndex, setCheck, check}) => {
     const COUNT = useRef(8)
     const [startgame, setStartgame] = useState(false)
     const [inputText, setInputText] = useState('')
     const [score, setScore] = useState(0)
     let [countDown, setCountDown] = useState(0)
-
+    let text;
+    
     // input창 value 읽어오기
     const onInput = useCallback((e)=>{
-        setInputText(e.target.value)
-        if(words === e.target.value){
+        if(startgame === false){
+            return;
+        }
+        text = e.target.value
+        setInputText(text)
+        if(words[randomIndex] === text){
             setScore(score+1)
+            setCheck(true)
             setInputText('')
         }
-    },[])
+        console.log(words[randomIndex])
+    },[startgame, check])
+    // 의존성으로 startgame을 넣어야 작동된다. 없으면 value변화 값에만 작동하고 
+    // 초기에 value값에 입력을 못하므로 작동이 아예 안된다.
     
     // 시간제한 setinterval을 위한 useEffect
     useEffect(()=>{
         const countInterval = setInterval(()=>{
             countDown === 0 ? setStartgame(false) : setCountDown(--countDown)
-            console.log(countDown)
-            console.log(startgame)
-            if(!startgame){
+            // console.log(countDown)
+            // console.log(startgame)
+            if(startgame === false){
                 clearInterval(countInterval)
             }
+            // else if(words[randomIndex] === text){
+            //     countDown = COUNT.current
+            //     setCountDown(countDown)
+            //     setCheck(false)
+            // }
             // console.log에 countDown의 값이 0이 세번찍혀야 setStartgame이 false가 됩니다 왜 이런걸까요? 
         },1000)
         return ()=>clearInterval(countInterval)
@@ -41,14 +56,13 @@ const Contents = ({words}) => {
 
     return (
         <ContentsWrapper>
-            <h1>{words}</h1>
+            <h1>{words[randomIndex]}</h1>
             <input value={inputText} onInput={onInput}></input>
             <TextWrapper>
                 <p>남은시간 : <span>{countDown}</span>s</p>
                 <p>점수 : <span>{score}</span></p>
             </TextWrapper>
-            {/* startgame을 그대로 넣어도 안되어서 논리연산자를 넣어보라해서 했는데 안되네요.. */}
-            <button onClick={onClick} startgame={startgame&&true}>{startgame? '게임 중...' : '게임 시작'}</button>
+            <StartButton onClick={onClick} startgame={startgame&&true}>{startgame? '게임 중...' : '게임 시작'}</StartButton>
         </ContentsWrapper>
     );
 };
@@ -66,22 +80,6 @@ const ContentsWrapper = styled.div`
         width: 150px;
         height: 30px;
     }
-    button{
-        width: 130px;
-        height: 40px;
-        margin: 1rem auto;
-        border: none;
-        border-radius: 10px;
-        background-color: #d4a373;
-        color: #fff;
-        font-size: 20px;
-        font-weight: bold;
-        cursor: pointer;
-        ${(props)=>props.startgame && css`
-            background-color: #ccc;
-            color: #333;
-        `}
-    }
 `
 const TextWrapper = styled.div`
     width: 250px;
@@ -94,6 +92,22 @@ const TextWrapper = styled.div`
     span{
         font-size: 40px;
     }
+`
+const StartButton = styled.button`
+    width: 130px;
+    height: 40px;
+    margin: 1rem auto;
+    border: none;
+    border-radius: 10px;
+    background-color: #d4a373;
+    color: #fff;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    ${(props)=>props.startgame && css`
+        background-color: #ccc;
+        color: #333;
+    `}
 `
 
 export default Contents;
