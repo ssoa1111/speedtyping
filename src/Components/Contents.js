@@ -19,32 +19,32 @@ const Contents = ({words, randomIndex, setCheck, check}) => {
         setInputText(text)
         if(words[randomIndex] === text){
             setScore(score+1)
-            setCheck(true)
             setInputText('')
+            setCheck(true)
         }
         console.log(words[randomIndex])
-    },[startgame, check])
+    },[startgame])
     // 의존성으로 startgame을 넣어야 작동된다. 없으면 value변화 값에만 작동하고 
     // 초기에 value값에 입력을 못하므로 작동이 아예 안된다.
     
     // 시간제한 setinterval을 위한 useEffect
     useEffect(()=>{
         const countInterval = setInterval(()=>{
+            setCheck(false)
             countDown === 0 ? setStartgame(false) : setCountDown(--countDown)
             // console.log(countDown)
             // console.log(startgame)
             if(startgame === false){
                 clearInterval(countInterval)
             }
-            // else if(words[randomIndex] === text){
-            //     countDown = COUNT.current
-            //     setCountDown(countDown)
-            //     setCheck(false)
-            // }
-            // console.log에 countDown의 값이 0이 세번찍혀야 setStartgame이 false가 됩니다 왜 이런걸까요? 
+            if(words[randomIndex] === text){
+                countDown = COUNT.current
+                setCountDown(countDown)
+                console.log(check)
+            }
         },1000)
         return ()=>clearInterval(countInterval)
-    },[startgame])
+    },[startgame, check])
     
     // 버튼을 클릭하면 게임이 실행되게 하는 함수
     const onClick = useCallback(()=>{
@@ -107,6 +107,7 @@ const StartButton = styled.button`
     ${(props)=>props.startgame && css`
         background-color: #ccc;
         color: #333;
+        cursor: not-allowed;
     `}
 `
 
